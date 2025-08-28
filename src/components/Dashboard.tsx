@@ -125,7 +125,11 @@ export const Dashboard = () => {
                 <Download className="w-4 h-4 mr-2" />
                 Export Report
               </Button>
-              <Button size="sm" className="bg-gradient-primary">
+              <Button 
+                size="sm" 
+                className="bg-gradient-primary"
+                onClick={() => setActiveTab("chat")}
+              >
                 <MessageSquare className="w-4 h-4 mr-2" />
                 AI Assistant
               </Button>
