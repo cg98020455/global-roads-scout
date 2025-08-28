@@ -14,7 +14,169 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      banks: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      companies: {
+        Row: {
+          country: string | null
+          created_at: string
+          id: string
+          name: string
+          opportunity_id: string | null
+          rating: number | null
+          specialization: string | null
+          website: string | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          opportunity_id?: string | null
+          rating?: number | null
+          specialization?: string | null
+          website?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          opportunity_id?: string | null
+          rating?: number | null
+          specialization?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "companies_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunities: {
+        Row: {
+          bank_id: string | null
+          budget: number | null
+          client: string | null
+          country: string | null
+          created_at: string
+          deadline: string | null
+          id: string
+          program: string | null
+          project_name: string
+          score: number | null
+          scraped_at: string | null
+          sector: string | null
+          services: string[] | null
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          bank_id?: string | null
+          budget?: number | null
+          client?: string | null
+          country?: string | null
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          program?: string | null
+          project_name: string
+          score?: number | null
+          scraped_at?: string | null
+          sector?: string | null
+          services?: string[] | null
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          bank_id?: string | null
+          budget?: number | null
+          client?: string | null
+          country?: string | null
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          program?: string | null
+          project_name?: string
+          score?: number | null
+          scraped_at?: string | null
+          sector?: string | null
+          services?: string[] | null
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_bank_id_fkey"
+            columns: ["bank_id"]
+            isOneToOne: false
+            referencedRelation: "banks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunity_companies: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          id: string
+          opportunity_id: string | null
+          relevance_score: number | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          opportunity_id?: string | null
+          relevance_score?: number | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          opportunity_id?: string | null
+          relevance_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_companies_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunity_companies_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
