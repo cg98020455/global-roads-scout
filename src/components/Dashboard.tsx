@@ -18,7 +18,8 @@ import {
   Star,
   ExternalLink,
   Building2,
-  Target
+  Target,
+  LogOut
 } from "lucide-react";
 import { ChatInterface } from "./ChatInterface";
 import { OpportunityCard } from "./OpportunityCard";
@@ -26,6 +27,7 @@ import { StatsCard } from "./StatsCard";
 import { PartnerCard } from "./PartnerCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,6 +38,7 @@ export const Dashboard = () => {
   const [banks, setBanks] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { signOut, user } = useAuth();
 
   useEffect(() => {
     fetchData();
@@ -191,6 +194,9 @@ export const Dashboard = () => {
               </div>
             </div>
             <div className="flex items-center space-x-3">
+              <span className="text-sm text-muted-foreground">
+                Welcome, {user?.email}
+              </span>
               <Button variant="outline" size="sm">
                 <Download className="w-4 h-4 mr-2" />
                 Export Report
@@ -202,6 +208,14 @@ export const Dashboard = () => {
               >
                 <MessageSquare className="w-4 h-4 mr-2" />
                 AI Assistant
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={signOut}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
               </Button>
             </div>
           </div>
