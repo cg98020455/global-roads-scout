@@ -1,1 +1,10 @@
 project_id = "qsnohuirkhjamsqwfjag"
+
+[functions.scrape-opportunities]
+verify_jwt = false
+
+[functions.find-companies]
+verify_jwt = false
+
+[functions.rag-chat]
+verify_jwt = false

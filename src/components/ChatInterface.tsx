@@ -13,6 +13,8 @@ import {
   Search,
   FileText
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Message {
   id: string;
@@ -31,7 +33,7 @@ const sampleQuestions = [
 const mockMessages: Message[] = [
   {
     id: "1",
-    content: "Hello! I'm your AI assistant for opportunity intelligence. I can help you query opportunities, generate reports, and provide insights. What would you like to know?",
+    content: "Hello! I'm your AI assistant for opportunity intelligence. I can help you query opportunities, generate reports, and provide insights based on real data from your database. What would you like to know?",
     sender: "ai",
     timestamp: new Date().toISOString()
   }
@@ -41,9 +43,10 @@ export const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>(mockMessages);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -53,42 +56,44 @@ export const ChatInterface = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue("");
     setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke('rag-chat', {
+        body: { message: currentInput }
+      });
+
+      if (error) throw error;
+
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: getAIResponse(inputValue),
+        content: data.response || "I'm sorry, I couldn't process your request at the moment.",
         sender: "ai",
         timestamp: new Date().toISOString()
       };
-      setMessages(prev => [...prev, aiResponse]);
-      setIsLoading(false);
-    }, 1500);
-  };
 
-  const getAIResponse = (query: string): string => {
-    const lowerQuery = query.toLowerCase();
-    
-    if (lowerQuery.includes("kenya")) {
-      return "I found 3 high-scoring opportunities in Kenya:\n\n1. **East Africa Transport Corridor Development** (92% match)\n   - Client: African Development Bank\n   - Budget: $2.5M - $5.0M\n   - Focus: Highway design, traffic studies\n\n2. **Nairobi Urban Mobility Study** (88% match)\n   - Client: World Bank\n   - Budget: $1.8M - $3.2M\n   - Focus: Urban transport planning\n\nWould you like more details on any of these?";
+      setMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      toast({
+        title: "Error",
+        description: "Failed to get AI response. Please try again.",
+        variant: "destructive",
+      });
+
+      const errorResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "I'm sorry, I'm having trouble connecting to my knowledge base right now. Please try again in a moment.",
+        sender: "ai",
+        timestamp: new Date().toISOString()
+      };
+
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
+      setIsLoading(false);
     }
-    
-    if (lowerQuery.includes("transport")) {
-      return "Currently tracking 12 transport infrastructure opportunities across Africa and Middle East. Here are the highlights:\n\n• **5 highway projects** (avg. score: 84%)\n• **3 railway initiatives** (avg. score: 76%)\n• **4 urban mobility studies** (avg. score: 89%)\n\nTotal estimated value: $47.3M\n\nWhich category interests you most?";
-    }
-    
-    if (lowerQuery.includes("budget") || lowerQuery.includes("5m")) {
-      return "Found 6 opportunities with budgets exceeding $5M:\n\n• Sub-Saharan Railway Network ($10M-$15M) - 78% match\n• Middle East Highway Expansion ($8M-$12M) - 82% match\n• East Africa Transport Corridor ($2.5M-$5M) - 92% match\n\nThese represent $35M+ in potential project value. Shall I provide partnership recommendations?";
-    }
-    
-    if (lowerQuery.includes("summary") || lowerQuery.includes("report")) {
-      return "**Daily Intelligence Summary - " + new Date().toLocaleDateString() + "**\n\n📊 **Key Metrics:**\n• 47 active opportunities\n• 23 high-match projects (85%+)\n• $127.5M total pipeline value\n\n🎯 **Top Recommendations:**\n1. East Africa Transport Corridor (92% - deadline Dec 15)\n2. Middle East Urban Mobility (87% - deadline Nov 30)\n3. Nigeria Railway Expansion (78% - deadline Dec 20)\n\n🤝 **New Partners Identified:** 8 firms across target regions\n\nFull Excel report ready for download.";
-    }
-    
-    return "I understand you're looking for information about opportunities. I can help you with:\n\n• Searching opportunities by country, sector, or budget\n• Generating compatibility scores and recommendations\n• Identifying local partners\n• Creating custom reports\n• Filtering by deadlines and programs\n\nWhat specific information would you like to explore?";
   };
 
   const handleQuestionClick = (question: string) => {

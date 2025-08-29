@@ -8,7 +8,8 @@ import {
   MapPin, 
   Star,
   Building2,
-  Clock
+  Clock,
+  Users
 } from "lucide-react";
 
 interface Opportunity {
@@ -27,9 +28,10 @@ interface Opportunity {
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
+  onFindCompanies?: () => void;
 }
 
-export const OpportunityCard = ({ opportunity }: OpportunityCardProps) => {
+export const OpportunityCard = ({ opportunity, onFindCompanies }: OpportunityCardProps) => {
   const getScoreColor = (score: number) => {
     if (score >= 85) return "success";
     if (score >= 70) return "warning";
@@ -115,9 +117,17 @@ export const OpportunityCard = ({ opportunity }: OpportunityCardProps) => {
               View Details
             </a>
           </Button>
-          <Button size="sm" className="bg-gradient-primary">
-            Save Opportunity
-          </Button>
+          <div className="flex gap-2">
+            {onFindCompanies && (
+              <Button variant="secondary" size="sm" onClick={onFindCompanies}>
+                <Users className="w-4 h-4 mr-2" />
+                Find Companies
+              </Button>
+            )}
+            <Button size="sm" className="bg-gradient-primary">
+              Save Opportunity
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

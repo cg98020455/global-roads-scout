@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,92 +17,162 @@ import {
   Users,
   Star,
   ExternalLink,
-  Building2
+  Building2,
+  Target
 } from "lucide-react";
 import { ChatInterface } from "./ChatInterface";
 import { OpportunityCard } from "./OpportunityCard";
 import { StatsCard } from "./StatsCard";
 import { PartnerCard } from "./PartnerCard";
-
-// Mock data for demonstration
-const mockOpportunities = [
-  {
-    id: "1",
-    projectName: "East Africa Transport Corridor Development",
-    client: "African Development Bank",
-    country: "Kenya",
-    sector: "Transport Infrastructure",
-    services: "Highway design, traffic studies, environmental assessment",
-    deadline: "2024-12-15",
-    budget: "$2.5M - $5.0M",
-    url: "https://afdb.org/opportunities/east-africa-transport",
-    score: 92,
-    program: "Africa Infrastructure Development Program"
-  },
-  {
-    id: "2", 
-    projectName: "Middle East Urban Mobility Assessment",
-    client: "World Bank Group",
-    country: "UAE",
-    sector: "Urban Planning",
-    services: "Transport planning, smart city solutions, feasibility studies",
-    deadline: "2024-11-30",
-    budget: "$1.2M - $3.0M", 
-    url: "https://worldbank.org/opportunities/me-mobility",
-    score: 87,
-    program: "Urban Development Initiative"
-  },
-  {
-    id: "3",
-    projectName: "Sub-Saharan Railway Network Expansion",
-    client: "European Investment Bank",
-    country: "Nigeria",
-    sector: "Railway Infrastructure",
-    services: "Railway engineering, environmental impact assessment",
-    deadline: "2024-12-20",
-    budget: "$10M - $15M",
-    url: "https://eib.org/opportunities/railway-expansion",
-    score: 78,
-    program: "Sustainable Transport Initiative"
-  }
-];
-
-const mockPartners = [
-  {
-    id: "1",
-    name: "Kenyan Engineering Solutions Ltd",
-    country: "Kenya", 
-    website: "https://kesolutions.co.ke",
-    specialization: "Highway and bridge construction",
-    rating: 4.5
-  },
-  {
-    id: "2",
-    name: "Emirates Infrastructure Group",
-    country: "UAE",
-    website: "https://emiratesinfra.ae", 
-    specialization: "Smart city and urban planning",
-    rating: 4.8
-  },
-  {
-    id: "3",
-    name: "Nigerian Transport Consultants",
-    country: "Nigeria",
-    website: "https://ntconsult.ng",
-    specialization: "Railway and logistics planning", 
-    rating: 4.2
-  }
-];
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 export const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("all");
   const [activeTab, setActiveTab] = useState("opportunities");
+  const [opportunities, setOpportunities] = useState<any[]>([]);
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [banks, setBanks] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
-  const filteredOpportunities = mockOpportunities.filter(opp => 
-    opp.projectName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    opp.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    opp.sector.toLowerCase().includes(searchTerm.toLowerCase())
+  useEffect(() => {
+    fetchData();
+    loadInitialBanks();
+  }, []);
+
+  const loadInitialBanks = async () => {
+    try {
+      // Check if banks exist, if not create some sample ones
+      const { data: existingBanks } = await supabase.from('banks').select('*');
+      
+      if (!existingBanks || existingBanks.length === 0) {
+        const sampleBanks = [
+          { name: 'African Development Bank', url: 'https://afdb.org' },
+          { name: 'World Bank Group', url: 'https://worldbank.org' },
+          { name: 'European Investment Bank', url: 'https://eib.org' },
+          { name: 'Islamic Development Bank', url: 'https://isdb.org' }
+        ];
+
+        await supabase.from('banks').insert(sampleBanks);
+      }
+    } catch (error) {
+      console.error('Error loading banks:', error);
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Fetch opportunities
+      const { data: opportunitiesData, error: oppError } = await supabase
+        .from('opportunities')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (oppError) throw oppError;
+
+      // Fetch companies
+      const { data: companiesData, error: compError } = await supabase
+        .from('companies')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (compError) throw compError;
+
+      // Fetch banks
+      const { data: banksData, error: banksError } = await supabase
+        .from('banks')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (banksError) throw banksError;
+
+      setOpportunities(opportunitiesData || []);
+      setCompanies(companiesData || []);
+      setBanks(banksData || []);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch data from database",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const triggerScraping = async () => {
+    try {
+      toast({
+        title: "Scraping Started",
+        description: "Fetching latest opportunities from development banks...",
+      });
+
+      // Scrape opportunities from all banks
+      for (const bank of banks) {
+        await supabase.functions.invoke('scrape-opportunities', {
+          body: { bankId: bank.id, bankUrl: bank.url }
+        });
+      }
+
+      // Refresh data
+      await fetchData();
+      
+      toast({
+        title: "Scraping Complete",
+        description: "New opportunities have been added to the database",
+      });
+    } catch (error) {
+      console.error('Error during scraping:', error);
+      toast({
+        title: "Scraping Failed",
+        description: "Failed to scrape new opportunities",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const findCompaniesForOpportunity = async (opportunity: any) => {
+    try {
+      toast({
+        title: "Finding Companies",
+        description: `Searching for companies relevant to ${opportunity.project_name}...`,
+      });
+
+      await supabase.functions.invoke('find-companies', {
+        body: {
+          opportunityId: opportunity.id,
+          sector: opportunity.sector,
+          services: opportunity.services || [],
+          country: opportunity.country
+        }
+      });
+
+      await fetchData();
+      
+      toast({
+        title: "Companies Found",
+        description: "Relevant companies have been added to the database",
+      });
+    } catch (error) {
+      console.error('Error finding companies:', error);
+      toast({
+        title: "Search Failed",
+        description: "Failed to find companies for this opportunity",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const filteredOpportunities = opportunities.filter(opp => 
+    opp.project_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    opp.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    opp.sector?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    opp.client?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -143,28 +213,28 @@ export const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatsCard
             title="Active Opportunities"
-            value="47"
+            value={opportunities.length.toString()}
             change="+12%"
-            icon={<Globe className="w-5 h-5" />}
+            icon={<Target className="w-5 h-5" />}
             trend="up"
           />
           <StatsCard
             title="High Match Score"
-            value="23"
+            value={opportunities.filter(o => (o.score || 0) >= 85).length.toString()}
             change="+8%"
             icon={<Star className="w-5 h-5" />}
             trend="up"
           />
           <StatsCard
             title="Total Value"
-            value="$127.5M"
+            value={`$${(opportunities.reduce((sum, o) => sum + (o.budget || 0), 0) / 1000000).toFixed(1)}M`}
             change="+15%"
             icon={<DollarSign className="w-5 h-5" />}
             trend="up"
           />
           <StatsCard
             title="Partner Networks"
-            value="156"
+            value={companies.length.toString()}
             change="+5%"
             icon={<Users className="w-5 h-5" />}
             trend="up"
@@ -205,16 +275,45 @@ export const Dashboard = () => {
                     <Filter className="w-4 h-4 mr-2" />
                     Filters
                   </Button>
+                  <Button onClick={triggerScraping} className="bg-gradient-primary">
+                    <Target className="w-4 h-4 mr-2" />
+                    Scrape New
+                  </Button>
                 </div>
               </CardContent>
             </Card>
 
             {/* Opportunities List */}
-            <div className="space-y-4">
-              {filteredOpportunities.map((opportunity) => (
-                <OpportunityCard key={opportunity.id} opportunity={opportunity} />
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="text-center py-8">Loading opportunities...</div>
+            ) : (
+              <div className="space-y-4">
+                {filteredOpportunities.map((opportunity) => (
+                  <OpportunityCard 
+                    key={opportunity.id} 
+                    opportunity={{
+                      id: opportunity.id,
+                      projectName: opportunity.project_name,
+                      client: opportunity.client,
+                      country: opportunity.country,
+                      sector: opportunity.sector,
+                      services: Array.isArray(opportunity.services) ? opportunity.services.join(', ') : 'Various services',
+                      deadline: opportunity.deadline,
+                      budget: opportunity.budget ? `$${opportunity.budget.toLocaleString()}` : 'TBD',
+                      url: opportunity.url || '#',
+                      score: opportunity.score || 0,
+                      program: opportunity.program || 'Development Program'
+                    }}
+                    onFindCompanies={() => findCompaniesForOpportunity(opportunity)}
+                  />
+                ))}
+                {filteredOpportunities.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No opportunities found. Try scraping for new ones!
+                  </div>
+                )}
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="partners" className="space-y-6">
@@ -226,11 +325,30 @@ export const Dashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {mockPartners.map((partner) => (
-                    <PartnerCard key={partner.id} partner={partner} />
-                  ))}
-                </div>
+                {isLoading ? (
+                  <div className="text-center py-8">Loading companies...</div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {companies.map((company) => (
+                      <PartnerCard 
+                        key={company.id} 
+                        partner={{
+                          id: company.id,
+                          name: company.name,
+                          country: company.country,
+                          website: company.website,
+                          specialization: company.specialization,
+                          rating: company.rating || 0
+                        }}
+                      />
+                    ))}
+                    {companies.length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground col-span-full">
+                        No companies found. Find companies by clicking "Find Companies" on opportunities!
+                      </div>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
