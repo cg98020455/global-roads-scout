@@ -79,7 +79,7 @@ export const OpportunityCard = ({ opportunity, onFindCompanies }: OpportunityCar
           <div className="flex items-center gap-2">
             <Badge variant={getScoreBadgeVariant(opportunity.score)} className="font-semibold">
               <Star className="w-3 h-3 mr-1" />
-              {opportunity.score}
+              {Math.round(opportunity.score)}
             </Badge>
           </div>
         </div>
