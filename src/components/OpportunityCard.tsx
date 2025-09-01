@@ -79,7 +79,7 @@ export const OpportunityCard = ({ opportunity, onFindCompanies }: OpportunityCar
           <div className="flex items-center gap-2">
             <Badge variant={getScoreBadgeVariant(opportunity.score)} className="font-semibold">
               <Star className="w-3 h-3 mr-1" />
-              {opportunity.score}%
+              {opportunity.score}
             </Badge>
           </div>
         </div>
@@ -117,17 +117,12 @@ export const OpportunityCard = ({ opportunity, onFindCompanies }: OpportunityCar
               View Details
             </a>
           </Button>
-          <div className="flex gap-2">
-            {onFindCompanies && (
-              <Button variant="secondary" size="sm" onClick={onFindCompanies}>
-                <Users className="w-4 h-4 mr-2" />
-                Find Companies
-              </Button>
-            )}
-            <Button size="sm" className="bg-gradient-primary">
-              Save Opportunity
+          {onFindCompanies && (
+            <Button variant="secondary" size="sm" onClick={onFindCompanies}>
+              <Users className="w-4 h-4 mr-2" />
+              Find Companies
             </Button>
-          </div>
+          )}
         </div>
       </CardContent>
     </Card>

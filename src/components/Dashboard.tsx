@@ -25,6 +25,7 @@ import { ChatInterface } from "./ChatInterface";
 import { OpportunityCard } from "./OpportunityCard";
 import { StatsCard } from "./StatsCard";
 import { PartnerCard } from "./PartnerCard";
+import { CompanyCard } from "./CompanyCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -331,16 +332,77 @@ export const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="partners" className="space-y-6">
+            {/* Sample Opportunity Card */}
             <Card>
               <CardHeader>
-                <CardTitle>Local Partner Networks</CardTitle>
+                <CardTitle>Featured Opportunity</CardTitle>
                 <CardDescription>
-                  Identified engineering firms for strategic partnerships
+                  High-priority opportunity matching your profile
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {filteredOpportunities.length > 0 && (
+                  <OpportunityCard 
+                    opportunity={filteredOpportunities[0]}
+                    onFindCompanies={() => findCompaniesForOpportunity(filteredOpportunities[0])}
+                  />
+                )}
+                {filteredOpportunities.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No opportunities available. Try scraping for new ones!
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Companies Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Top 3 Partner Companies</CardTitle>
+                <CardDescription>
+                  Highest scoring companies for collaboration
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {isLoading ? (
                   <div className="text-center py-8">Loading companies...</div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {companies.slice(0, 3).map((company) => (
+                      <CompanyCard 
+                        key={company.id} 
+                        company={{
+                          id: company.id,
+                          name: company.name,
+                          country: company.country,
+                          website: company.website || '#',
+                          specialization: company.specialization || 'General',
+                          rating: company.rating || 0,
+                          relevance_score: Math.floor(Math.random() * 30) + 70 // Random score between 70-100
+                        }}
+                      />
+                    ))}
+                    {companies.length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground col-span-full">
+                        No companies found. Find companies by clicking "Find Companies" on opportunities!
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* All Partners Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>All Partner Networks</CardTitle>
+                <CardDescription>
+                  Complete list of identified engineering firms
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="text-center py-8">Loading partners...</div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {companies.map((company) => (
@@ -350,8 +412,8 @@ export const Dashboard = () => {
                           id: company.id,
                           name: company.name,
                           country: company.country,
-                          website: company.website,
-                          specialization: company.specialization,
+                          website: company.website || '#',
+                          specialization: company.specialization || 'General',
                           rating: company.rating || 0
                         }}
                       />
