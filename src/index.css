@@ -8,57 +8,57 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Dark Green Theme with Blue Buttons and White Text */
-    --background: 120 40% 8%;
+    /* Powerful Dark Green Theme with Heavy Feel */
+    --background: 120 50% 5%;
     --foreground: 0 0% 98%;
 
-    --card: 120 15% 35%;
+    --card: 120 30% 12%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 120 15% 35%;
+    --popover: 120 30% 12%;
     --popover-foreground: 0 0% 98%;
 
-    /* Blue Button Palette */
-    --primary: 220 85% 55%;
+    /* Powerful Blue Button Palette */
+    --primary: 220 95% 50%;
     --primary-foreground: 0 0% 98%;
-    --primary-glow: 220 85% 70%;
+    --primary-glow: 220 95% 65%;
 
-    --secondary: 215 25% 95%;
-    --secondary-foreground: 220 15% 25%;
+    --secondary: 120 20% 18%;
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 215 20% 96%;
-    --muted-foreground: 220 10% 55%;
+    --muted: 120 25% 15%;
+    --muted-foreground: 0 0% 75%;
 
-    --accent: 195 85% 50%;
+    --accent: 200 85% 45%;
     --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 75% 55%;
+    --destructive: 0 85% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --success: 145 65% 45%;
+    --success: 145 75% 40%;
     --success-foreground: 0 0% 98%;
 
-    --warning: 35 85% 55%;
+    --warning: 35 95% 50%;
     --warning-foreground: 0 0% 98%;
 
-    --border: 215 15% 88%;
-    --input: 215 15% 90%;
-    --ring: 215 85% 45%;
+    --border: 120 25% 20%;
+    --input: 120 25% 18%;
+    --ring: 220 95% 50%;
 
-    /* Professional Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(195 85% 65%));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
-    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(215 20% 95%));
+    /* Heavy, Powerful Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)), hsl(120 40% 8%));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(200 85% 60%), hsl(120 30% 10%));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 50%, hsl(120 50% 5%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(120 35% 8%));
 
-    /* Professional Shadows */
-    --shadow-elegant: 0 4px 20px -2px hsl(var(--primary) / 0.15);
-    --shadow-card: 0 2px 12px -2px hsl(215 25% 60% / 0.12);
-    --shadow-glow: 0 0 30px hsl(var(--primary-glow) / 0.25);
+    /* Heavy, Dramatic Shadows */
+    --shadow-elegant: 0 8px 32px -4px hsl(var(--primary) / 0.4), 0 4px 16px -2px hsl(120 50% 5% / 0.8);
+    --shadow-card: 0 6px 24px -4px hsl(120 40% 5% / 0.6), 0 2px 8px -1px hsl(var(--primary) / 0.2);
+    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.5), 0 0 80px hsl(var(--primary) / 0.3);
 
-    /* Smooth Transitions */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* Strong Transitions */
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
     --radius: 0.75rem;
 
