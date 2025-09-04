@@ -34,6 +34,7 @@ export const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("all");
   const [activeTab, setActiveTab] = useState("opportunities");
+  const [selectedOpportunity, setSelectedOpportunity] = useState<any>(null);
   const [opportunities, setOpportunities] = useState<any[]>([]);
   const [companies, setCompanies] = useState<any[]>([]);
   const [banks, setBanks] = useState<any[]>([]);
@@ -157,6 +158,10 @@ export const Dashboard = () => {
       });
 
       await fetchData();
+      
+      // Set selected opportunity and navigate to partners tab
+      setSelectedOpportunity(opportunity);
+      setActiveTab("partners");
       
       toast({
         title: "Companies Found",
@@ -341,13 +346,41 @@ export const Dashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {filteredOpportunities.length > 0 && (
+                {selectedOpportunity ? (
                   <OpportunityCard 
-                    opportunity={filteredOpportunities[0]}
+                    opportunity={{
+                      id: selectedOpportunity.id,
+                      projectName: selectedOpportunity.project_name,
+                      client: selectedOpportunity.client,
+                      country: selectedOpportunity.country,
+                      sector: selectedOpportunity.sector,
+                      services: Array.isArray(selectedOpportunity.services) ? selectedOpportunity.services.join(', ') : 'Various services',
+                      deadline: selectedOpportunity.deadline,
+                      budget: selectedOpportunity.budget ? `$${selectedOpportunity.budget.toLocaleString()}` : 'TBD',
+                      url: selectedOpportunity.url || '#',
+                      score: selectedOpportunity.score || 0,
+                      program: selectedOpportunity.program || 'Development Program'
+                    }}
+                    onFindCompanies={() => findCompaniesForOpportunity(selectedOpportunity)}
+                  />
+                ) : filteredOpportunities.length > 0 ? (
+                  <OpportunityCard 
+                    opportunity={{
+                      id: filteredOpportunities[0].id,
+                      projectName: filteredOpportunities[0].project_name,
+                      client: filteredOpportunities[0].client,
+                      country: filteredOpportunities[0].country,
+                      sector: filteredOpportunities[0].sector,
+                      services: Array.isArray(filteredOpportunities[0].services) ? filteredOpportunities[0].services.join(', ') : 'Various services',
+                      deadline: filteredOpportunities[0].deadline,
+                      budget: filteredOpportunities[0].budget ? `$${filteredOpportunities[0].budget.toLocaleString()}` : 'TBD',
+                      url: filteredOpportunities[0].url || '#',
+                      score: filteredOpportunities[0].score || 0,
+                      program: filteredOpportunities[0].program || 'Development Program'
+                    }}
                     onFindCompanies={() => findCompaniesForOpportunity(filteredOpportunities[0])}
                   />
-                )}
-                {filteredOpportunities.length === 0 && (
+                ) : (
                   <div className="text-center py-8 text-muted-foreground">
                     No opportunities available. Try scraping for new ones!
                   </div>
