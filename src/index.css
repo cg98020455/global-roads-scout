@@ -8,20 +8,20 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Corporate Blue Theme for Professional Consulting Dashboard */
-    --background: 218 25% 98%;
-    --foreground: 220 15% 20%;
+    /* Dark Green Theme with Blue Buttons and White Text */
+    --background: 120 35% 15%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 15% 20%;
+    --card: 120 25% 20%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 20%;
+    --popover: 120 25% 20%;
+    --popover-foreground: 0 0% 98%;
 
-    /* Professional Blue Palette */
-    --primary: 215 85% 45%;
+    /* Blue Button Palette */
+    --primary: 220 85% 55%;
     --primary-foreground: 0 0% 98%;
-    --primary-glow: 215 85% 65%;
+    --primary-glow: 220 85% 70%;
 
     --secondary: 215 25% 95%;
     --secondary-foreground: 220 15% 25%;
