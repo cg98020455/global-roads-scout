@@ -12,10 +12,10 @@ All colors MUST be HSL.
     --background: 120 40% 8%;
     --foreground: 0 0% 98%;
 
-    --card: 120 20% 25%;
+    --card: 120 15% 35%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 120 20% 25%;
+    --popover: 120 15% 35%;
     --popover-foreground: 0 0% 98%;
 
     /* Blue Button Palette */
