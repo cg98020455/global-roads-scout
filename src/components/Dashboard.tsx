@@ -29,6 +29,7 @@ import { CompanyCard } from "./CompanyCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import * as XLSX from 'xlsx';
 
 export const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -64,6 +65,49 @@ export const Dashboard = () => {
       }
     } catch (error) {
       console.error('Error loading banks:', error);
+    }
+  };
+
+  const exportToExcel = () => {
+    try {
+      // Prepare data for Excel export
+      const exportData = opportunities.map(opportunity => ({
+        'Project Name': opportunity.project_name || '',
+        'Client': opportunity.client || '',
+        'Country': opportunity.country || '',
+        'Sector': opportunity.sector || '',
+        'Services': Array.isArray(opportunity.services) ? opportunity.services.join(', ') : (opportunity.services || ''),
+        'Deadline': opportunity.deadline || '',
+        'Budget': opportunity.budget ? `$${opportunity.budget.toLocaleString()}` : '',
+        'Score': opportunity.score || 0,
+        'Program': opportunity.program || '',
+        'URL': opportunity.url || '',
+        'Created At': opportunity.created_at ? new Date(opportunity.created_at).toLocaleDateString() : '',
+        'Updated At': opportunity.updated_at ? new Date(opportunity.updated_at).toLocaleDateString() : ''
+      }));
+
+      // Create workbook and worksheet
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Opportunities');
+
+      // Generate filename with current date
+      const fileName = `opportunities_export_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      // Download the file
+      XLSX.writeFile(wb, fileName);
+
+      toast({
+        title: "Export Successful",
+        description: `Downloaded ${opportunities.length} opportunities to ${fileName}`,
+      });
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      toast({
+        title: "Export Failed",
+        description: "Failed to export opportunities to Excel",
+        variant: "destructive",
+      });
     }
   };
 
@@ -203,7 +247,7 @@ export const Dashboard = () => {
               <span className="text-sm text-muted-foreground">
                 Welcome, {user?.email}
               </span>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={exportToExcel}>
                 <Download className="w-4 h-4 mr-2" />
                 Export Report
               </Button>
