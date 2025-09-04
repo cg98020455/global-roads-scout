@@ -9,13 +9,13 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Dark Green Theme with Blue Buttons and White Text */
-    --background: 120 35% 15%;
+    --background: 120 40% 8%;
     --foreground: 0 0% 98%;
 
-    --card: 120 25% 20%;
+    --card: 120 20% 25%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 120 25% 20%;
+    --popover: 120 20% 25%;
     --popover-foreground: 0 0% 98%;
 
     /* Blue Button Palette */
